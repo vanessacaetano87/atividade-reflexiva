@@ -1,45 +1,34 @@
-import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
+import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager.widget.ViewPager
+import android.os.Bundle
+import com.google.android.material.tabs.TabLayout
 
-public class MainActivity extends AppCompatActivity {
-    FloatingActionButton fab;
+class MainActivity : AppCompatActivity() {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {
-            IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
-            integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
-            integrator.setPrompt("Scan a QR code");
-            integrator.setOrientationLocked(false);
-            integrator.setBeepEnabled(false);
-            integrator.setBarcodeImageEnabled(true);
-            integrator.initiateScan();
-        });
-    }
+        val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
+        tabLayout.addTab(tabLayout.newTab().setText("Primeira Aba"))
+        tabLayout.addTab(tabLayout.newTab().setText("Segunda Aba"))
+        tabLayout.tabGravity = TabLayout.GRAVITY_FILL
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
-            if(result.getContents() == null) {
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
-                // Aqui você pode adicionar a lógica para trocar a cidade com base no conteúdo do QR code
+        val viewPager = findViewById<ViewPager>(R.id.pager)
+        val adapter = PagerAdapter(supportFragmentManager, tabLayout.tabCount)
+        viewPager.adapter = adapter
+
+        viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
+
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                viewPager.currentItem = tab.position
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
     }
 }
-dependencies {
-    implementation 'com.journeyapps:zxing-android-embedded:4.1.0'
-}
+
